@@ -1,0 +1,26 @@
+# Environment
+.env
+.venv
+env/
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE
+.cursor/
+.idea/
+.vscode/
+
+# Output files
+output/
+dump/
+
+# PDF files (large)
+*.pdf
+
+# OS
+.DS_Store
+Thumbs.db
