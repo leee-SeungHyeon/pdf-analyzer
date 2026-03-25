@@ -18,8 +18,9 @@ __pycache__/
 output/
 dump/
 
-# PDF files (large)
+# PDF files (examples/ 제외)
 *.pdf
+!examples/*.pdf
 
 # OS
 .DS_Store
