@@ -74,6 +74,7 @@ pdf-analyzer/
 │   ├── pdf_extractor.py # opendataloader-pdf 기반 추출 (텍스트/테이블/이미지)
 │   ├── llm_analyzer.py  # Gemini API 범용 분석
 │   └── docx_writer.py   # docx 생성 (테이블/이미지 렌더링 포함)
+├── Dockerfile
 ├── requirements.txt
 └── .env.example
 ```
