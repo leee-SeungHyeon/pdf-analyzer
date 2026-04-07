@@ -39,17 +39,19 @@ def main():
 
     print(f"PDF 추출 중: {input_path}")
     extracted = extract(str(input_path))
-    print(f"  페이지 수: {len(extracted['pages'])}, 감지된 섹션: {len(extracted['sections'])}")
+    total_tables = sum(len(s["tables"]) for s in extracted["doc_sections"])
+    total_images = sum(len(s["images"]) for s in extracted["doc_sections"])
+    print(f"  섹션: {len(extracted['doc_sections'])}개, 테이블: {total_tables}개, 이미지: {total_images}개")
     print(f"  텍스트 길이: {len(extracted['full_text'])}자")
 
     print(f"\nLLM 분석 중 (모델: {args.model})...")
     analysis = analyze(extracted, model=args.model, api_key=api_key)
     print(f"  문서 유형: {analysis.get('doc_type', '알 수 없음')}")
     print(f"  섹션 수: {len(analysis.get('sections', []))}")
-    print(f"  주요 데이터 수: {len(analysis.get('key_data', []))}")
+    print(f"  핵심 인사이트 수: {len(analysis.get('key_insights', []))}")
 
     print(f"\nDocx 생성 중...")
-    write(analysis, output_path, source_filename=str(input_path))
+    write(analysis, extracted, output_path, source_filename=str(input_path))
     print(f"\n완료: {output_path}")
 
 
