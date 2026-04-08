@@ -79,6 +79,12 @@ pdf-analyzer/
 └── .env.example
 ```
 
+## 결과 예시
+
+![결과1](examples/result1.png)
+![결과2](examples/result2.png)
+![결과3](examples/result3.png)
+
 ## 샘플
 
 `examples/` 폴더에 샘플 입력과 결과물이 있습니다.
