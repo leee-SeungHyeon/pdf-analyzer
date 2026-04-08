@@ -81,9 +81,9 @@ pdf-analyzer/
 
 ## 결과 예시
 
-![결과1](examples/result1.png)
-![결과2](examples/result2.png)
-![결과3](examples/result3.png)
+<img src="examples/result1.png" width="600"/>
+<img src="examples/result2.png" width="600"/>
+<img src="examples/result3.png" width="600"/>
 
 ## 샘플
 
