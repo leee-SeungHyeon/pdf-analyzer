@@ -1,40 +1,16 @@
-import opendataloader_pdf
 import os
 import re
-from pathlib import Path
 from typing import Dict, List
 
+MAX_FULL_TEXT = 50000
 
-def extract(pdf_path: str) -> Dict:
-    """
-    PDF에서 텍스트, 섹션, 테이블, 이미지를 추출한다.
 
-    Returns:
-        {
-            "doc_sections": [{"title": "...", "text": "...", "tables": [...], "images": [...]}],
-            "full_text": "...",
-            "extract_dir": "..."
-        }
-    """
-    pdf_stem = Path(pdf_path).stem
-    extract_dir = os.path.join("output", "_extract", pdf_stem)
-
-    opendataloader_pdf.convert(
-        input_path=[pdf_path],
-        output_dir=extract_dir,
-        format="markdown"
-    )
-
-    md_path = os.path.join(extract_dir, f"{pdf_stem}.md")
-    with open(md_path, "r", encoding="utf-8") as f:
-        markdown_content = f.read()
-
-    doc_sections = _parse_sections(markdown_content, extract_dir)
-
+def build_result(markdown_content: str, extract_dir: str) -> Dict:
+    """마크다운에서 공용 출력 계약 dict({doc_sections, full_text, extract_dir})를 만든다. 모든 백엔드가 이걸 호출한다."""
+    doc_sections = parse_sections(markdown_content, extract_dir)
     full_text = markdown_content
-    if len(full_text) > 50000:
-        full_text = full_text[:50000] + "\n\n[... 이하 내용 생략 ...]"
-
+    if len(full_text) > MAX_FULL_TEXT:
+        full_text = full_text[:MAX_FULL_TEXT] + "\n\n[... 이하 내용 생략 ...]"
     return {
         "doc_sections": doc_sections,
         "full_text": full_text,
@@ -42,8 +18,8 @@ def extract(pdf_path: str) -> Dict:
     }
 
 
-def _parse_sections(markdown_content: str, extract_dir: str) -> List[Dict]:
-    """마크다운을 섹션 단위로 파싱한다."""
+def parse_sections(markdown_content: str, extract_dir: str) -> List[Dict]:
+    """마크다운을 섹션 단위로 파싱한다. (# / ## 만 섹션 분리)"""
     lines = markdown_content.split("\n")
     sections = []
     current = _new_section("")

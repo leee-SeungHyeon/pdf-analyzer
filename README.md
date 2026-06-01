@@ -15,18 +15,15 @@ PDF 내 테이블과 이미지는 원본 그대로 결과물에 삽입됩니다.
 ## 요구사항
 
 - Python 3.10+
-- Java 11+ (`brew install openjdk@17` on macOS)
 - Gemini API Key ([Google AI Studio](https://aistudio.google.com/app/apikey)에서 발급)
+
+> 추출 백엔드(Marker/Docling)는 첫 실행 시 ML 모델을 자동 다운로드한다(수백MB~1GB).
+> Apple Silicon(Mac)에서는 MPS 가속을 사용한다. GPU가 없으면 CPU로 동작하며 더 느리다.
+> MPS에서 멈춤이 발생하면 `TORCH_DEVICE=cpu`를 앞에 붙여 실행한다.
 
 ## 설치
 
 ```bash
-# Java 설치 (macOS)
-brew install openjdk@17
-echo 'export PATH="/opt/homebrew/opt/openjdk@17/bin:$PATH"' >> ~/.zshrc
-source ~/.zshrc
-
-# Python 환경
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
@@ -44,10 +41,15 @@ cp .env.example .env
 ### 로컬 실행
 
 ```bash
-python main.py input.pdf
+python main.py input.pdf                          # 기본 백엔드: marker
+python main.py input.pdf --extractor docling      # 추출 백엔드 선택 (marker|docling)
 python main.py input.pdf -o output/result.docx
 python main.py input.pdf --model gemini-2.5-flash
 ```
+
+추출 백엔드는 `marker`(수식·reading order 강점)와 `docling`(표·MIT 라이선스 강점)
+중 선택할 수 있습니다. 같은 PDF를 두 백엔드로 돌려 출력 통계(섹션·표·이미지 수)를
+비교할 수 있습니다.
 
 결과물은 `output/파일명_분석_YYYYMMDD.docx`에 저장됩니다.
 
@@ -71,7 +73,10 @@ docker run --rm \
 pdf-analyzer/
 ├── main.py              # 진입점
 ├── src/
-│   ├── pdf_extractor.py # opendataloader-pdf 기반 추출 (텍스트/테이블/이미지)
+│   ├── extractors/      # 플러그형 추출 백엔드
+│   │   ├── base.py      # 공용 출력 계약 + 마크다운→섹션 파서
+│   │   ├── marker_extractor.py
+│   │   └── docling_extractor.py
 │   ├── llm_analyzer.py  # Gemini API 범용 분석
 │   └── docx_writer.py   # docx 생성 (테이블/이미지 렌더링 포함)
 ├── Dockerfile
