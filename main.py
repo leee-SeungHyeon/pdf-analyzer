@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from src.pdf_extractor import extract
+from src.extractors import get_extractor
 from src.llm_analyzer import analyze
 from src.docx_writer import write
 
@@ -17,6 +17,8 @@ def main():
     parser.add_argument("input", help="분석할 PDF 파일 경로")
     parser.add_argument("-o", "--output", help="출력 docx 파일 경로")
     parser.add_argument("--model", default="gemini-2.5-flash-lite", help="Gemini 모델명 (default: gemini-2.5-flash-lite)")
+    parser.add_argument("--extractor", default="marker", choices=["marker", "docling"],
+                        help="PDF 추출 백엔드 (default: marker)")
     args = parser.parse_args()
 
     input_path = Path(args.input)
@@ -37,8 +39,8 @@ def main():
         print("오류: GEMINI_API_KEY 환경변수가 설정되지 않았습니다.")
         sys.exit(1)
 
-    print(f"PDF 추출 중: {input_path}")
-    extracted = extract(str(input_path))
+    print(f"PDF 추출 중: {input_path} (백엔드: {args.extractor})")
+    extracted = get_extractor(args.extractor)(str(input_path))
     total_tables = sum(len(s["tables"]) for s in extracted["doc_sections"])
     total_images = sum(len(s["images"]) for s in extracted["doc_sections"])
     print(f"  섹션: {len(extracted['doc_sections'])}개, 테이블: {total_tables}개, 이미지: {total_images}개")
