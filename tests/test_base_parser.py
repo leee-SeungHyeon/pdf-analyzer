@@ -1,5 +1,5 @@
 import os
-from src.extractors.base import parse_sections as _parse_sections
+from src.extractors.base import build_result, parse_sections as _parse_sections
 
 
 def test_splits_on_h1_and_h2_headings(tmp_path):
@@ -35,9 +35,6 @@ def test_missing_image_is_skipped(tmp_path):
     md = "# 제목\n![alt](nope.png)"
     sections = _parse_sections(md, str(tmp_path))
     assert sections[0]["images"] == []
-
-
-from src.extractors.base import build_result
 
 
 def test_build_result_truncates_long_text(tmp_path):

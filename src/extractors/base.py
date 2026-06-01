@@ -6,7 +6,7 @@ MAX_FULL_TEXT = 50000
 
 
 def build_result(markdown_content: str, extract_dir: str) -> Dict:
-    """마크다운에서 공용 출력 계약 dict를 만든다. 모든 백엔드가 이걸 호출한다."""
+    """마크다운에서 공용 출력 계약 dict({doc_sections, full_text, extract_dir})를 만든다. 모든 백엔드가 이걸 호출한다."""
     doc_sections = parse_sections(markdown_content, extract_dir)
     full_text = markdown_content
     if len(full_text) > MAX_FULL_TEXT:
@@ -28,6 +28,7 @@ def parse_sections(markdown_content: str, extract_dir: str) -> List[Dict]:
     while i < len(lines):
         line = lines[i]
 
+        # 헤딩 감지 (# 또는 ## 만 섹션 분리, ### 이하는 본문 처리)
         if re.match(r'^#{1,2}\s', line):
             title = line.lstrip("#").strip()
             if current["title"] or current["text_parts"]:
@@ -36,6 +37,7 @@ def parse_sections(markdown_content: str, extract_dir: str) -> List[Dict]:
             i += 1
             continue
 
+        # 테이블 감지 (연속된 | 로 시작하는 라인)
         if line.startswith("|"):
             table_lines = []
             while i < len(lines) and lines[i].startswith("|"):
@@ -43,6 +45,7 @@ def parse_sections(markdown_content: str, extract_dir: str) -> List[Dict]:
                 i += 1
             table_str = "\n".join(table_lines)
 
+            # 이미지를 감싼 단일 셀 테이블인지 확인
             img_match = re.search(r'!\[.*?\]\((.*?)\)', table_str)
             if img_match and len(table_lines) <= 3:
                 img_path = os.path.join(extract_dir, img_match.group(1))
@@ -52,6 +55,7 @@ def parse_sections(markdown_content: str, extract_dir: str) -> List[Dict]:
                 current["tables"].append(table_str)
             continue
 
+        # 인라인 이미지 감지
         img_match = re.search(r'!\[.*?\]\((.*?)\)', line)
         if img_match:
             img_path = os.path.join(extract_dir, img_match.group(1))
